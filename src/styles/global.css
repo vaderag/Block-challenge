@@ -1,0 +1,190 @@
+@import "tailwindcss";
+
+@theme {
+  --color-block-yellow: #FFD700;
+  --color-block-red: #CC0000;
+  --color-block-blue: #0057A8;
+  --color-block-green: #00833D;
+  --color-block-orange: #FF6600;
+  --color-block-dark: #1A1A1A;
+  --color-block-light: #FFFDE7;
+
+  --font-family-display: 'Nunito', 'Arial Rounded MT Bold', ui-rounded, sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-family-display);
+    background-color: var(--color-block-yellow);
+    min-height: 100vh;
+    margin: 0;
+  }
+}
+
+/* Shared button base — applied in JSX alongside a color class */
+@layer components {
+  .btn-block {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    font-family: var(--font-family-display);
+    font-weight: 900;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: all 75ms;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-block:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-block:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-green {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    font-family: var(--font-family-display);
+    font-weight: 900;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: all 75ms;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+    background-color: #00833D;
+    width: 100%;
+  }
+
+  .btn-green:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+  .btn-green:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    font-family: var(--font-family-display);
+    font-weight: 900;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: all 75ms;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+    background-color: #CC0000;
+    width: 100%;
+  }
+
+  .btn-red:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+  .btn-red:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-orange {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    font-family: var(--font-family-display);
+    font-weight: 900;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: all 75ms;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+    background-color: #FF6600;
+    width: 100%;
+  }
+
+  .btn-orange:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+  .btn-orange:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-blue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    font-family: var(--font-family-display);
+    font-weight: 900;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: all 75ms;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+    background-color: #0057A8;
+  }
+
+  .btn-blue:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+  .btn-blue:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .card-block {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2), 0 12px 24px rgba(0, 0, 0, 0.15);
+    border: 3px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
