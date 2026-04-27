@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAppStore } from '../../store/appStore';
 import { useCountdown } from '../../hooks/useCountdown';
 import { TimerDisplay } from './TimerDisplay';
 import { TimerControls } from './TimerControls';
 import { CameraModal } from '../camera/CameraModal';
+import { ChallengeImage } from '../challenge/ChallengeImage';
+import { getLegoImageUrl } from '../../services/pollinationsService';
 
 export function TimerOverlay() {
   useCountdown();
@@ -17,6 +19,11 @@ export function TimerOverlay() {
   const challengeName = active
     ? (active.mode === 'complicated' ? active.challenge.complicated : active.challenge.simple)
     : 'Block Challenge';
+
+  const generatedImageUrl = useMemo(
+    () => challengeName !== 'Block Challenge' ? getLegoImageUrl(challengeName) : null,
+    [challengeName]
+  );
 
   function handleBack() {
     pauseTimer();
@@ -50,6 +57,19 @@ export function TimerOverlay() {
           <TimerDisplay remaining={timer.remaining} finished={timer.finished} />
           <TimerControls />
         </div>
+
+        {/* Reference images */}
+        {active && (
+          <div className="card-block p-3">
+            <ChallengeImage
+              imageUrl={active.imageUrl}
+              imageLoading={active.imageLoading}
+              imageError={active.imageError}
+              generatedImageUrl={generatedImageUrl}
+              challengeName={challengeName}
+            />
+          </div>
+        )}
 
         {/* Capture photo button */}
         <button
