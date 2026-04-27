@@ -1,18 +1,21 @@
 /**
- * Returns the conventional curated image URL for a challenge.
- * The app always tries this first — if the file doesn't exist it 404s
- * and the component falls back to Pollinations then Unsplash automatically.
+ * Returns candidate curated image URLs to try in order for a given challenge.
+ * Supports both numbered ({id}-1.jpg) and unnumbered ({id}.jpg) naming, jpg and png.
+ * The component tries each in sequence and falls back to Pollinations if none exist.
  *
- * Naming convention: public/images/challenges/{challenge-id}-1.jpg (or .png)
- * For multiple images per challenge, add -2.jpg, -3.jpg etc. and list them here.
+ * For challenges with multiple images, list extras here for random selection:
  */
 export const CURATED_EXTRAS: Record<string, string[]> = {
-  // Add extra images here when a challenge has more than one, e.g.:
   // penguin: ['/images/challenges/penguin-2.jpg', '/images/challenges/penguin-3.jpg'],
 };
 
-export function getCuratedBlockImageUrl(challengeId: string): string {
+export function getCuratedBlockImageCandidates(challengeId: string): string[] {
+  const base = [
+    `/images/challenges/${challengeId}-1.jpg`,
+    `/images/challenges/${challengeId}.jpg`,
+    `/images/challenges/${challengeId}-1.png`,
+    `/images/challenges/${challengeId}.png`,
+  ];
   const extras = CURATED_EXTRAS[challengeId] ?? [];
-  const all = [`/images/challenges/${challengeId}-1.jpg`, ...extras];
-  return all[Math.floor(Math.random() * all.length)];
+  return [...base, ...extras];
 }

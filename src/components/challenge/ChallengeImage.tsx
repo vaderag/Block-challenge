@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { fetchBlockImage } from '../../services/unsplashService';
 import { getLegoImageUrl } from '../../services/pollinationsService';
-import { getCuratedBlockImageUrl } from '../../data/curatedImages';
+import { getCuratedBlockImageCandidates } from '../../data/curatedImages';
 
 interface Props {
   imageUrl: string | null;
@@ -34,24 +34,28 @@ function Spinner() {
   );
 }
 
-function GeneratedImage({ curatedUrl, pollinationsUrl, challengeName }: {
-  curatedUrl: string;
+function GeneratedImage({ curatedCandidates, pollinationsUrl, challengeName }: {
+  curatedCandidates: string[];
   pollinationsUrl: string;
   challengeName: string;
 }) {
-  const [displayUrl, setDisplayUrl] = useState(curatedUrl);
+  const [displayUrl, setDisplayUrl] = useState(curatedCandidates[0]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const loadedRef = useRef(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const phaseRef = useRef<'curated' | 'pollinations'>('curated');
+  const candidateIndexRef = useRef(0);
 
   useEffect(() => {
-    setDisplayUrl(curatedUrl);
+    setDisplayUrl(curatedCandidates[0]);
     setLoading(true);
     setError(false);
     loadedRef.current = false;
+    phaseRef.current = 'curated';
+    candidateIndexRef.current = 0;
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
-  }, [curatedUrl, pollinationsUrl]);
+  }, [curatedCandidates, pollinationsUrl]);
 
   function startPollinationsFallback() {
     timeoutRef.current = setTimeout(async () => {
@@ -69,13 +73,19 @@ function GeneratedImage({ curatedUrl, pollinationsUrl, challengeName }: {
 
   function handleError() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    if (displayUrl === curatedUrl) {
-      // Curated image doesn't exist — move to Pollinations
-      setDisplayUrl(pollinationsUrl);
-      setLoading(true);
-      startPollinationsFallback();
+    if (phaseRef.current === 'curated') {
+      const nextIndex = candidateIndexRef.current + 1;
+      if (nextIndex < curatedCandidates.length) {
+        candidateIndexRef.current = nextIndex;
+        setDisplayUrl(curatedCandidates[nextIndex]);
+        setLoading(true);
+      } else {
+        phaseRef.current = 'pollinations';
+        setDisplayUrl(pollinationsUrl);
+        setLoading(true);
+        startPollinationsFallback();
+      }
     } else {
-      // Pollinations or Unsplash fallback also failed
       setError(true);
       setLoading(false);
     }
@@ -107,7 +117,7 @@ function GeneratedImage({ curatedUrl, pollinationsUrl, challengeName }: {
 export function ChallengeImage({ imageUrl, imageLoading, imageError, challengeId, challengeName }: Props) {
   const [showGenerated, setShowGenerated] = useState(false);
 
-  const curatedUrl = useMemo(() => getCuratedBlockImageUrl(challengeId), [challengeId]);
+  const curatedCandidates = useMemo(() => getCuratedBlockImageCandidates(challengeId), [challengeId]);
   const pollinationsUrl = useMemo(() => getLegoImageUrl(challengeName), [challengeName]);
 
   useEffect(() => {
@@ -149,7 +159,7 @@ export function ChallengeImage({ imageUrl, imageLoading, imageError, challengeId
           <p className="text-xs font-black uppercase tracking-wider text-center opacity-50" style={{ color: '#1A1A1A' }}>
             Block Style
           </p>
-          <GeneratedImage curatedUrl={curatedUrl} pollinationsUrl={pollinationsUrl} challengeName={challengeName} />
+          <GeneratedImage curatedCandidates={curatedCandidates} pollinationsUrl={pollinationsUrl} challengeName={challengeName} />
         </div>
       )}
     </div>
