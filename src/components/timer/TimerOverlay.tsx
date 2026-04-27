@@ -4,6 +4,7 @@ import { useCountdown } from '../../hooks/useCountdown';
 import { TimerDisplay } from './TimerDisplay';
 import { TimerControls } from './TimerControls';
 import { CameraModal } from '../camera/CameraModal';
+import { ChallengeImage } from '../challenge/ChallengeImage';
 
 export function TimerOverlay() {
   useCountdown();
@@ -50,6 +51,19 @@ export function TimerOverlay() {
           <TimerDisplay remaining={timer.remaining} finished={timer.finished} />
           <TimerControls />
         </div>
+
+        {/* Reference images */}
+        {active && (
+          <div className="card-block p-3">
+            <ChallengeImage
+              imageUrl={active.imageUrl}
+              imageLoading={active.imageLoading}
+              imageError={active.imageError}
+              challengeId={active.challenge.id}
+              challengeName={challengeName}
+            />
+          </div>
+        )}
 
         {/* Capture photo button */}
         <button

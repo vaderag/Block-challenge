@@ -9,6 +9,7 @@ export function ChallengeCard() {
     ? (active.mode === 'complicated' ? active.challenge.complicated : active.challenge.simple)
     : null;
 
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-6">
       <div className="w-full max-w-md flex flex-col gap-4">
@@ -57,6 +58,7 @@ export function ChallengeCard() {
               imageUrl={active.imageUrl}
               imageLoading={active.imageLoading}
               imageError={active.imageError}
+              challengeId={active.challenge.id}
               challengeName={displayName ?? ''}
             />
           ) : (
