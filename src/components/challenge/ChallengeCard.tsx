@@ -3,6 +3,7 @@ import { useAppStore } from '../../store/appStore';
 import { ChallengeImage } from './ChallengeImage';
 import { ActionButtons } from './ActionButtons';
 import { getLegoImageUrl } from '../../services/pollinationsService';
+import { getCuratedBlockImage } from '../../data/curatedImages';
 
 export function ChallengeCard() {
   const active = useAppStore(s => s.active);
@@ -11,10 +12,10 @@ export function ChallengeCard() {
     ? (active.mode === 'complicated' ? active.challenge.complicated : active.challenge.simple)
     : null;
 
-  const generatedImageUrl = useMemo(
-    () => displayName ? getLegoImageUrl(displayName) : null,
-    [displayName]
-  );
+  const generatedImageUrl = useMemo(() => {
+    if (!active) return null;
+    return getCuratedBlockImage(active.challenge.id) ?? getLegoImageUrl(displayName ?? '');
+  }, [active?.challenge.id, displayName]);
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 gap-6">

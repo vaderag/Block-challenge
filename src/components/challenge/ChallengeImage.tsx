@@ -44,6 +44,9 @@ function GeneratedImage({ pollinationsUrl, challengeName }: { pollinationsUrl: s
     setError(false);
     loadedRef.current = false;
 
+    // Curated local images load instantly — no fallback timeout needed
+    if (pollinationsUrl.startsWith('/')) return;
+
     const timeout = setTimeout(async () => {
       if (loadedRef.current) return;
       try {

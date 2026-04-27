@@ -6,6 +6,7 @@ import { TimerControls } from './TimerControls';
 import { CameraModal } from '../camera/CameraModal';
 import { ChallengeImage } from '../challenge/ChallengeImage';
 import { getLegoImageUrl } from '../../services/pollinationsService';
+import { getCuratedBlockImage } from '../../data/curatedImages';
 
 export function TimerOverlay() {
   useCountdown();
@@ -20,10 +21,10 @@ export function TimerOverlay() {
     ? (active.mode === 'complicated' ? active.challenge.complicated : active.challenge.simple)
     : 'Block Challenge';
 
-  const generatedImageUrl = useMemo(
-    () => challengeName !== 'Block Challenge' ? getLegoImageUrl(challengeName) : null,
-    [challengeName]
-  );
+  const generatedImageUrl = useMemo(() => {
+    if (!active) return null;
+    return getCuratedBlockImage(active.challenge.id) ?? getLegoImageUrl(challengeName);
+  }, [active?.challenge.id, challengeName]);
 
   function handleBack() {
     pauseTimer();
