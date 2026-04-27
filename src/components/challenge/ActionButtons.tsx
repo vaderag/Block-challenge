@@ -10,7 +10,6 @@ export function ActionButtons() {
   const setImageLoading = useAppStore(s => s.setImageLoading);
   const setImageError = useAppStore(s => s.setImageError);
   const resetTimer = useAppStore(s => s.resetTimer);
-  const startTimer = useAppStore(s => s.startTimer);
   const setView = useAppStore(s => s.setView);
 
   async function loadImage(query: string) {
@@ -44,7 +43,6 @@ export function ActionButtons() {
     if (!active) return;
     resetTimer();
     setView('timer');
-    startTimer();
   }
 
   const hasActive = !!active;

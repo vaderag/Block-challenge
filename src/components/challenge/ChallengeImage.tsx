@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { fetchBlockImage } from '../../services/unsplashService';
 
 interface Props {
   imageUrl: string | null;
@@ -31,14 +32,32 @@ function Spinner() {
   );
 }
 
-function GeneratedImage({ url, name }: { url: string; name: string }) {
+function GeneratedImage({ pollinationsUrl, challengeName }: { pollinationsUrl: string; challengeName: string }) {
+  const [displayUrl, setDisplayUrl] = useState(pollinationsUrl);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const loadedRef = useRef(false);
 
   useEffect(() => {
+    setDisplayUrl(pollinationsUrl);
     setLoading(true);
     setError(false);
-  }, [url]);
+    loadedRef.current = false;
+
+    const timeout = setTimeout(async () => {
+      if (loadedRef.current) return;
+      try {
+        const fallback = await fetchBlockImage(`lego ${challengeName}`);
+        setDisplayUrl(fallback);
+        setLoading(true);
+      } catch {
+        setError(true);
+        setLoading(false);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, [pollinationsUrl, challengeName]);
 
   return (
     <div
@@ -46,13 +65,13 @@ function GeneratedImage({ url, name }: { url: string; name: string }) {
       style={{ aspectRatio: '4/3', border: '4px solid #1A1A1A', boxShadow: '6px 6px 0 rgba(0,0,0,0.25)' }}
     >
       {loading && !error && <Spinner />}
-      {error && <PlaceholderImage name={name} />}
+      {!loading && error && <PlaceholderImage name={challengeName} />}
       <img
-        src={url}
-        alt={`Block style: ${name}`}
+        src={displayUrl}
+        alt={`Block style: ${challengeName}`}
         className="w-full h-full object-cover"
         style={{ display: loading || error ? 'none' : 'block' }}
-        onLoad={() => setLoading(false)}
+        onLoad={() => { loadedRef.current = true; setLoading(false); }}
         onError={() => { setLoading(false); setError(true); }}
       />
     </div>
@@ -101,7 +120,7 @@ export function ChallengeImage({ imageUrl, imageLoading, imageError, generatedIm
           <p className="text-xs font-black uppercase tracking-wider text-center opacity-50" style={{ color: '#1A1A1A' }}>
             Block Style
           </p>
-          <GeneratedImage url={generatedImageUrl} name={challengeName} />
+          <GeneratedImage pollinationsUrl={generatedImageUrl} challengeName={challengeName} />
         </div>
       )}
     </div>
