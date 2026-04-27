@@ -1,11 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { fetchBlockImage } from '../../services/unsplashService';
+import { getLegoImageUrl } from '../../services/pollinationsService';
+import { getCuratedBlockImageUrl } from '../../data/curatedImages';
 
 interface Props {
   imageUrl: string | null;
   imageLoading: boolean;
   imageError: boolean;
-  generatedImageUrl: string | null;
+  challengeId: string;
   challengeName: string;
 }
 
@@ -32,22 +34,27 @@ function Spinner() {
   );
 }
 
-function GeneratedImage({ pollinationsUrl, challengeName }: { pollinationsUrl: string; challengeName: string }) {
-  const [displayUrl, setDisplayUrl] = useState(pollinationsUrl);
+function GeneratedImage({ curatedUrl, pollinationsUrl, challengeName }: {
+  curatedUrl: string;
+  pollinationsUrl: string;
+  challengeName: string;
+}) {
+  const [displayUrl, setDisplayUrl] = useState(curatedUrl);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const loadedRef = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setDisplayUrl(pollinationsUrl);
+    setDisplayUrl(curatedUrl);
     setLoading(true);
     setError(false);
     loadedRef.current = false;
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+  }, [curatedUrl, pollinationsUrl]);
 
-    // Curated local images load instantly — no fallback timeout needed
-    if (pollinationsUrl.startsWith('/')) return;
-
-    const timeout = setTimeout(async () => {
+  function startPollinationsFallback() {
+    timeoutRef.current = setTimeout(async () => {
       if (loadedRef.current) return;
       try {
         const fallback = await fetchBlockImage(`lego ${challengeName}`);
@@ -58,9 +65,21 @@ function GeneratedImage({ pollinationsUrl, challengeName }: { pollinationsUrl: s
         setLoading(false);
       }
     }, 2000);
+  }
 
-    return () => clearTimeout(timeout);
-  }, [pollinationsUrl, challengeName]);
+  function handleError() {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (displayUrl === curatedUrl) {
+      // Curated image doesn't exist — move to Pollinations
+      setDisplayUrl(pollinationsUrl);
+      setLoading(true);
+      startPollinationsFallback();
+    } else {
+      // Pollinations or Unsplash fallback also failed
+      setError(true);
+      setLoading(false);
+    }
+  }
 
   return (
     <div
@@ -74,19 +93,26 @@ function GeneratedImage({ pollinationsUrl, challengeName }: { pollinationsUrl: s
         alt={`Block style: ${challengeName}`}
         className="w-full h-full object-cover"
         style={{ display: loading || error ? 'none' : 'block' }}
-        onLoad={() => { loadedRef.current = true; setLoading(false); }}
-        onError={() => { setLoading(false); setError(true); }}
+        onLoad={() => {
+          loadedRef.current = true;
+          setLoading(false);
+          if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        }}
+        onError={handleError}
       />
     </div>
   );
 }
 
-export function ChallengeImage({ imageUrl, imageLoading, imageError, generatedImageUrl, challengeName }: Props) {
+export function ChallengeImage({ imageUrl, imageLoading, imageError, challengeId, challengeName }: Props) {
   const [showGenerated, setShowGenerated] = useState(false);
+
+  const curatedUrl = useMemo(() => getCuratedBlockImageUrl(challengeId), [challengeId]);
+  const pollinationsUrl = useMemo(() => getLegoImageUrl(challengeName), [challengeName]);
 
   useEffect(() => {
     setShowGenerated(false);
-  }, [generatedImageUrl]);
+  }, [challengeId]);
 
   return (
     <div className="w-full flex flex-col gap-3">
@@ -108,7 +134,7 @@ export function ChallengeImage({ imageUrl, imageLoading, imageError, generatedIm
       </div>
 
       {/* Generate block idea button / generated image */}
-      {generatedImageUrl && !showGenerated && (
+      {!showGenerated && (
         <button
           onClick={() => setShowGenerated(true)}
           className="text-sm font-bold underline underline-offset-2 opacity-60 hover:opacity-100 transition-opacity text-center"
@@ -118,12 +144,12 @@ export function ChallengeImage({ imageUrl, imageLoading, imageError, generatedIm
         </button>
       )}
 
-      {showGenerated && generatedImageUrl && (
+      {showGenerated && (
         <div className="flex flex-col gap-1">
           <p className="text-xs font-black uppercase tracking-wider text-center opacity-50" style={{ color: '#1A1A1A' }}>
             Block Style
           </p>
-          <GeneratedImage pollinationsUrl={generatedImageUrl} challengeName={challengeName} />
+          <GeneratedImage curatedUrl={curatedUrl} pollinationsUrl={pollinationsUrl} challengeName={challengeName} />
         </div>
       )}
     </div>

@@ -1,12 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useAppStore } from '../../store/appStore';
 import { useCountdown } from '../../hooks/useCountdown';
 import { TimerDisplay } from './TimerDisplay';
 import { TimerControls } from './TimerControls';
 import { CameraModal } from '../camera/CameraModal';
 import { ChallengeImage } from '../challenge/ChallengeImage';
-import { getLegoImageUrl } from '../../services/pollinationsService';
-import { getCuratedBlockImage } from '../../data/curatedImages';
 
 export function TimerOverlay() {
   useCountdown();
@@ -20,11 +18,6 @@ export function TimerOverlay() {
   const challengeName = active
     ? (active.mode === 'complicated' ? active.challenge.complicated : active.challenge.simple)
     : 'Block Challenge';
-
-  const generatedImageUrl = useMemo(() => {
-    if (!active) return null;
-    return getCuratedBlockImage(active.challenge.id) ?? getLegoImageUrl(challengeName);
-  }, [active?.challenge.id, challengeName]);
 
   function handleBack() {
     pauseTimer();
@@ -66,7 +59,7 @@ export function TimerOverlay() {
               imageUrl={active.imageUrl}
               imageLoading={active.imageLoading}
               imageError={active.imageError}
-              generatedImageUrl={generatedImageUrl}
+              challengeId={active.challenge.id}
               challengeName={challengeName}
             />
           </div>
