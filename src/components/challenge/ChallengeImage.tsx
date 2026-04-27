@@ -87,7 +87,7 @@ export function ChallengeImage({ imageUrl, imageLoading, imageError, generatedIm
       />
       <ImagePanel
         url={generatedImageUrl}
-        label="LEGO Style"
+        label="Block Style"
         name={challengeName}
       />
     </div>
